@@ -72,7 +72,7 @@ class FASubmission:
         If not, file will be downloaded, hashed, and discarded.
         """
         if algorithm not in hashlib.algorithms_available:
-            raise RuntimeError
+            raise ValueError("Requested hash algorithm is not available.")
 
         hash_ = getattr(hashlib, algorithm)()
 
