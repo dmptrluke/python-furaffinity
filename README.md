@@ -1,4 +1,4 @@
-python-furaffinity
+python-furaffinity [![Build Status](https://travis-ci.org/dmptrluke/python-furaffinity.svg?branch=master)](https://travis-ci.org/dmptrluke/python-furaffinity)
 ==================
 A Python library for browsing, scraping and downloading content from Fur Affinity.
 This project is still under heavy development, so don't expect it to be finished quite yet.
