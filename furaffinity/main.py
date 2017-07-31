@@ -92,7 +92,7 @@ class FurAffinity:
 
         end_page = page + num_pages
         while page < end_page:
-            response = self.session.get(f"https://www.furaffinity.net/{sub_page}/{username}/{page}")
+            response = self.session.get("https://www.furaffinity.net/{}/{}/{}".format(sub_page, username, page))
             soup = bs4.BeautifulSoup(response.text, "html.parser")
 
             if soup.find("div", id="no-images"):
@@ -317,7 +317,7 @@ class FurAffinity:
             submission = submission.id
         submission = str(submission)
 
-        response = self.session.get(f"https://www.furaffinity.net/view/{submission}/")
+        response = self.session.get("https://www.furaffinity.net/view/{}/".format(submission))
         soup = bs4.BeautifulSoup(response.text, "html.parser")
 
         submission = FASubmission(soup, submission)

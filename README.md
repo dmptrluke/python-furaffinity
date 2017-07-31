@@ -3,7 +3,7 @@ python-furaffinity [![Build Status](https://travis-ci.org/dmptrluke/python-furaf
 A Python library for browsing, scraping and downloading content from Fur Affinity.
 This project is still under heavy development, so don't expect it to be finished quite yet.
 
-This requires **Python 3.6**. Your account must also be set to the **Beta** theme for this to work at all.
+This requires **Python 3.5**. Your account must also be set to the **Beta** theme for this to work at all.
 
 ## How do I use this?
 Proper documentation will be coming (eventually), but here is  a short demonstration script 
@@ -35,7 +35,7 @@ for result in results:
     submission = session.get_submission(result)
 
     # figure our where to save it
-    location = f"./output/{submission.uploader}/{submission.file.filename}"
+    location = f"./output/" + submission.uploader + "/" + submission.file.filename
 
     # save it
     submission.file.download(location)
