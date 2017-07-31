@@ -37,8 +37,9 @@ for result in results:
     # figure out where to save it
     location = f"./output/" + submission.uploader + "/" + submission.file.filename
 
-    # save it
-    submission.file.download(location)
+    # save it, skip the download if the file already exists
+    # (we could use replace=True if we want it to replace existing files instead)
+    submission.file.download(location, skip=True)
     
     # be nice! don't thrash the servers
     time.sleep(1)

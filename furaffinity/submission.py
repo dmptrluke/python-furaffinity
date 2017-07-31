@@ -59,12 +59,20 @@ class FASubmission:
         return title
 
     @property
+    def title_safe(self) -> str:
+        """
+        Returns the (sanitized) title of the submission.
+        """
+        title = NAME_UPLOADER_REGEX.match(self.soup.title.string).group(1)
+        return clean(title, safe=True)
+
+    @property
     def uploader(self) -> str:
         """
         Returns the uploader of the submission.
         """
         uploader = NAME_UPLOADER_REGEX.match(self.soup.title.string).group(2)
-        return uploader
+        return clean(uploader, safe=True)
 
     @property
     def description(self) -> str:
@@ -235,7 +243,7 @@ class FAFile:
         self._url = url
         self._local_path = None
 
-    def download(self, destination: str):
+    def download(self, destination: str, replace=False, skip=False):
         """
         Downloads the submission to the specified location. The image path is relative to the execution folder.
         If a file extension is provided, it will be discarded.
@@ -256,16 +264,36 @@ class FAFile:
 
         # ensure destination exists, make temporary path for downloading
         os.makedirs(os.path.dirname(destination), exist_ok=True)
+        path_final = destination + '.' + self.extension
         path_tmp = destination + '~PART'
 
-        with open(path_tmp, "wb") as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
+        if os.path.exists(path_final):
+            if replace and skip:
+                raise RuntimeError("Download called with both skip and replace. You can't do that.")
+            elif replace:
+                pass
+            elif skip:
+                return
+            else:
+                raise FileExistsError("File already exists: {}".format(path_final))
 
-        # rename the file to the final path
-        path_final = destination + '.' + self.file_extension
-        os.rename(path_tmp, path_final)
+        # if os.path.exists(path_tmp):
+        #     raise FileExistsError("Temporary file already exists: {}".format(path_tmp))
+
+        try:
+            with open(path_tmp, "wb") as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+
+            # rename the file to the final path
+            os.rename(path_tmp, path_final)
+        finally:
+            # make sure we've cleaned up any messes if something went wrong
+            try:
+                os.remove(path_tmp)
+            except OSError:
+                pass
 
         # store the path we downloaded to to make calculate_hash() faster
         self._local_path = path_final
