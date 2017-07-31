@@ -35,7 +35,7 @@ for result in results:
     submission = session.get_submission(result)
 
     # figure our where to save it
-    location = f"./output/{submission.uploader}/{submission.file.name}"
+    location = f"./output/{submission.uploader}/{submission.file.filename}"
 
     # save it
     submission.file.download(location)

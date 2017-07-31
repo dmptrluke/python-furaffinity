@@ -305,14 +305,14 @@ class FAFile:
         return self._url
 
     @property
-    def file_name(self) -> str:
+    def filename(self) -> str:
         """
         Returns the filename of the file, extracted from the url.
         """
         return os.path.basename(self._url)
 
     @property
-    def file_extension(self) -> str:
+    def extension(self) -> str:
         """
         Returns extension of the file.
         """

@@ -40,15 +40,15 @@ def test_stats():
 def test_file():
     submission = FASubmission(soup, '00001')
     assert submission.file.url == "https://example.com/00001.jpg"
-    assert submission.file.file_name == "00001.jpg"
-    assert submission.file.file_extension == "jpg"
+    assert submission.file.filename == "00001.jpg"
+    assert submission.file.extension == "jpg"
 
 
 def test_thumb():
     submission = FASubmission(soup, '00001')
     assert submission.thumb.url == "https://example.com/00001-thumb.jpg"
-    assert submission.thumb.file_name == "00001-thumb.jpg"
-    assert submission.thumb.file_extension == "jpg"
+    assert submission.thumb.filename == "00001-thumb.jpg"
+    assert submission.thumb.extension == "jpg"
 
 
 def test_time():
