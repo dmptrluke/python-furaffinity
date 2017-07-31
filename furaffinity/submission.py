@@ -126,7 +126,7 @@ class FASubmission:
         Returns the category of the submission.
         """
         bit = self.soup.find("strong", text="Category:").next_sibling
-        category = CATEGORY_THEME_REGEX.match(bit)[1]
+        category = CATEGORY_THEME_REGEX.match(bit).group(1)
         return clean(category)
 
     @property
@@ -135,7 +135,7 @@ class FASubmission:
         Returns whatever theme is, from the submission.
         """
         bit = self.soup.find("strong", text="Category:").next_sibling
-        theme = CATEGORY_THEME_REGEX.match(bit)[2]
+        theme = CATEGORY_THEME_REGEX.match(bit).group(2)
         return clean(theme)
 
     @property

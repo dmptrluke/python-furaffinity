@@ -32,7 +32,6 @@ class FurAffinity:
         if useragent:
             self.session.headers["User-Agent"] = useragent
 
-
     ###
     # Authentication
     ###
@@ -102,7 +101,7 @@ class FurAffinity:
 
                 for submission in submissions:
                     _id = int(submission.get("id")[4:])
-                    kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class")))[2]
+                    kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class"))).group(2)
                     results.append(FAResult(_id, kind))
 
             if page > 1:
@@ -164,7 +163,7 @@ class FurAffinity:
 
             for submission in submissions:
                 _id = int(submission.get("id")[4:])
-                kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class")))[2]
+                kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class"))).group(2)
                 results.append(FAResult(_id, kind))
 
             # Find next page button
@@ -270,7 +269,7 @@ class FurAffinity:
 
             for submission in submissions:
                 _id = int(submission.get("id")[4:])
-                kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class")))[2]
+                kind = GALLERY_CLASS_REGEX.match(" ".join(submission.get("class"))).group(2)
                 list_.append(FAResult(_id, kind))
 
             if page > 1:
