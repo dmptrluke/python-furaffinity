@@ -7,8 +7,8 @@ import requests  # For accessing pages over the internet.
 
 from typing import List
 
-from .errors import *
-from .misc import *
+from .errors import NotLoggedInError, LoginError
+from .misc import FAResult, clean
 from .submission import FASubmission
 
 GALLERY_CLASS_REGEX = re.compile(r"r-([a-z]+) t-([a-z]+)")
@@ -27,10 +27,11 @@ class FurAffinity:
         Initiates the FurAffinity object
         """
         self.session = session or requests.Session()
-        self.loggedIn = False
+        self.logged_in = False
 
         if useragent:
             self.session.headers["User-Agent"] = useragent
+
 
     ###
     # Authentication
@@ -60,7 +61,7 @@ class FurAffinity:
         self.session.cookies.update(cookies)
 
         if self.check_login():
-            self.loggedIn = True
+            self.logged_in = True
         else:
             raise LoginError("Bad cookies")
 
@@ -83,7 +84,7 @@ class FurAffinity:
         Returns list of users submissions in an arbitrary sub-page.
         Should only be used internally.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         results = []
@@ -146,7 +147,7 @@ class FurAffinity:
         """
         Returns list of submissions from the new submissions page.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         response = self.session.get("https://www.furaffinity.net/msg/submissions/old/")
@@ -188,7 +189,7 @@ class FurAffinity:
         Uses the 'nuke all submissions' button in the 'messagecenter'.
         This function does not seem to work. It may have never worked.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         print("Nuking submissions")
@@ -250,7 +251,7 @@ class FurAffinity:
             "type-story": types[4] and "on" or None,
             "type-poetry": types[5] and "on" or None,
 
-            "mode": "extended"  # Used to allow stuff like searching for tags (see below).
+            "mode": "extended"
         }
 
         while page < end_page:
@@ -309,7 +310,7 @@ class FurAffinity:
 
         """
 
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         if type(submission) is FAResult:
@@ -318,6 +319,7 @@ class FurAffinity:
 
         response = self.session.get(f"https://www.furaffinity.net/view/{submission}/")
         soup = bs4.BeautifulSoup(response.text, "html.parser")
+
         submission = FASubmission(soup, submission)
 
         submission.check_errors()
@@ -331,7 +333,7 @@ class FurAffinity:
         """
         Returns a list of usernames, of the users on the logged in users watchlist.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         users = []
@@ -351,7 +353,7 @@ class FurAffinity:
         """
         Returns a dict of account settings for the currently logged in account.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         response = self.session.get("https://www.furaffinity.net/controls/settings/")
@@ -385,7 +387,7 @@ class FurAffinity:
         """
         Returns a dict of site settings for the currently logged in account.
         """
-        if not self.loggedIn:
+        if not self.logged_in:
             raise NotLoggedInError
 
         response = self.session.get("https://www.furaffinity.net/controls/site-settings/")
@@ -395,10 +397,10 @@ class FurAffinity:
             "disable_avatars": soup.find("input", id="disable_avatars_yes").get("checked") and "1" or "0",
             "date_format": soup.find("input", id="switch-date-format-full").get("checked") and "1" or "0",
             "perpage": soup.find("select", id="select-preferred-perpage"
-                                 ).find("option", selected="selected").get("value"),
+                                ).find("option", selected="selected").get("value"),
             "newsubmissions_direction":
                 soup.find("select", id="select-newsubmissions-direction"
-                          ).find("option", elected="selected").get("value"),
+                         ).find("option", elected="selected").get("value"),
             "thumbnail_size":
                 soup.find("select", id="select-thumbnail-size").find("option", selected="selected").get("value"),
             "hide_favorites": soup.find("select", id="hide-favorites").find("option", selected="selected").get("value"),

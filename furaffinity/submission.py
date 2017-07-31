@@ -3,13 +3,14 @@ import hashlib  # To hash images and files
 import os  # For working with paths
 import re
 
+from typing import List
+
 import requests
 import dateutil.parser  # For parsing dates lazily
 
-from typing import List
-
 from .errors import *
-from .misc import *
+from .misc import clean
+
 
 NAME_UPLOADER_REGEX = re.compile(r'(.+) by (.+) --')
 CATEGORY_THEME_REGEX = re.compile(r" ?(.+) > (.+)")
@@ -30,67 +31,24 @@ class FASubmission:
         self.id = identifier
         self.soup = soup
 
-    def download(self, destination: str):
-        """
-        Downloads the submission to the specified location. The image path is relative to the execution folder.
-        If a file extension is provided, it will be discarded.
+        self._file = None
+        self._thumb = None
 
-        TODO: Maybe work out the file format from magic bytes and save the file based on it? Right now we just
-        use the extension from the original URL.
+    @property
+    def file(self):
+        if not self._file:
+            url = "https:" + self.soup.find('a', text="Download").get('href')
+            self._file = FAFile(url)
 
-        Args:
-            destination (str)
-        """
-        try:
-            r = requests.get(self.file_url, stream=True)
-        except requests.ConnectionError:
-            raise SubmissionFileNotAccessible
+        return self._file
 
-        # remove extension if one exists
-        destination = os.path.splitext(destination)[0]
+    @property
+    def thumb(self):
+        if not self._thumb:
+            url = "https:" + self.soup.find('img', id="submissionImg").get('data-preview-src')
+            self._thumb = FAFile(url)
 
-        # ensure destination exists, make temporary path for downloading
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        path_tmp = destination + '~PART'
-
-        with open(path_tmp, "wb") as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-
-        # rename the file to the final path
-        path_final = destination + '.' + self.file_extension
-        os.rename(path_tmp, path_final)
-
-        # store the path we downloaded to to make calculate_hash() faster
-        self.local_path = path_final
-
-    def calculate_hash(self, algorithm='sha256') -> bytes:
-        """
-        Retrieves the sha256 hash of the submission. If the submission has previously been downloaded with the
-        download() function in this FASubmission instance, it will retrieve the hash using that existing file.
-        If not, file will be downloaded, hashed, and discarded.
-        """
-        if algorithm not in hashlib.algorithms_available:
-            raise ValueError("Requested hash algorithm is not available.")
-
-        hash_ = getattr(hashlib, algorithm)()
-
-        if self.local_path and os.path.exists(self.local_path):
-            with open(self.local_path, "rb") as f:
-                hash_.update(f.read())
-        else:
-            try:
-                path = self.file_url
-                r = requests.get(path, stream=True)
-            except requests.ConnectionError:
-                raise SubmissionFileNotAccessible
-
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    hash_.update(chunk)
-
-        return hash_.digest()
+        return self._thumb
 
     @property
     def title(self) -> str:
@@ -123,28 +81,6 @@ class FASubmission:
         """
         description_html = self.soup.find('div', class_='submission-description').prettify()
         return description_html
-
-    @property
-    def file_url(self) -> str:
-        """
-        Returns the content url of the submission.
-        """
-        url = "https:" + self.soup.find('a', text="Download").get('href')
-        return url
-
-    @property
-    def file_name(self) -> str:
-        """
-        Returns the file name of the submission, extracted from the url.
-        """
-        return os.path.basename(self.file_url)
-
-    @property
-    def file_extension(self) -> str:
-        """
-        Returns extension of the submission.
-        """
-        return os.path.splitext(self.file_url)[1][1:]
 
     # upload time functions
     @property
@@ -292,3 +228,92 @@ class FASubmission:
     @property
     def html(self) -> str:
         return self.soup.prettify()
+
+
+class FAFile:
+    def __init__(self, url):
+        self._url = url
+        self._local_path = None
+
+    def download(self, destination: str):
+        """
+        Downloads the submission to the specified location. The image path is relative to the execution folder.
+        If a file extension is provided, it will be discarded.
+
+        TODO: Maybe work out the file format from magic bytes and save the file based on it? Right now we just
+        use the extension from the original URL.
+
+        Args:
+            destination (str)
+        """
+        try:
+            r = requests.get(self._url, stream=True)
+        except requests.ConnectionError:
+            raise SubmissionFileNotAccessible
+
+        # remove extension if one exists
+        destination = os.path.splitext(destination)[0]
+
+        # ensure destination exists, make temporary path for downloading
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        path_tmp = destination + '~PART'
+
+        with open(path_tmp, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
+        # rename the file to the final path
+        path_final = destination + '.' + self.file_extension
+        os.rename(path_tmp, path_final)
+
+        # store the path we downloaded to to make calculate_hash() faster
+        self._local_path = path_final
+
+    def calculate_hash(self, algorithm='sha256') -> bytes:
+        """
+        Retrieves the sha256 hash of the submission. If the submission has previously been downloaded with the
+        download() function in this FASubmission instance, it will retrieve the hash using that existing file.
+        If not, file will be downloaded, hashed, and discarded.
+        """
+        if algorithm not in hashlib.algorithms_available:
+            raise ValueError("Requested hash algorithm is not available.")
+
+        hash_ = getattr(hashlib, algorithm)()
+
+        if self._local_path and os.path.exists(self._local_path):
+            with open(self._local_path, "rb") as f:
+                hash_.update(f.read())
+        else:
+            try:
+                path = self._url
+                r = requests.get(path, stream=True)
+            except requests.ConnectionError:
+                raise SubmissionFileNotAccessible
+
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    hash_.update(chunk)
+
+        return hash_.digest()
+
+    @property
+    def url(self) -> str:
+        """
+        Returns the url of the file.
+        """
+        return self._url
+
+    @property
+    def file_name(self) -> str:
+        """
+        Returns the filename of the file, extracted from the url.
+        """
+        return os.path.basename(self._url)
+
+    @property
+    def file_extension(self) -> str:
+        """
+        Returns extension of the file.
+        """
+        return os.path.splitext(self._url)[1][1:]
