@@ -1,4 +1,5 @@
 python-dateutil
 requests
 beautifulsoup4
+typing
 attrs
