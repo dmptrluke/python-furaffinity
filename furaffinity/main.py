@@ -13,6 +13,7 @@ from .submission import FASubmission
 
 GALLERY_CLASS_REGEX = re.compile(r"r-([a-z]+) t-([a-z]+)")
 WATCHLIST_REGEX = re.compile(r"/unwatch/(.*)/\?key=[0-9a-f]*")
+URL_REGEX = re.compile(r"(?:https*://)*www.furaffinity\.net/view/(\d+)/*")
 
 WAIT_TIME = 1
 
@@ -314,7 +315,9 @@ class FurAffinity:
 
         if type(submission) is FAResult:
             submission = submission.id
+
         submission = str(submission)
+        submission = URL_REGEX.match(submission).group(1) if URL_REGEX.match(submission) else submission
 
         response = self.session.get("https://www.furaffinity.net/view/{}/".format(submission))
         soup = bs4.BeautifulSoup(response.text, "html.parser")

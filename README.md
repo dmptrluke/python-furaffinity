@@ -34,7 +34,7 @@ for result in results:
     # get the FA submission
     submission = session.get_submission(result)
 
-    # figure our where to save it
+    # figure out where to save it
     location = f"./output/" + submission.uploader + "/" + submission.file.filename
 
     # save it
