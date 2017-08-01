@@ -31,9 +31,9 @@ def test_details():
 
 def test_stats():
     submission = FASubmission(soup, '00001')
-    assert submission.favorites == 199
-    assert submission.comments == 5
-    assert submission.views == 1026
+    assert submission.favorite_count == 199
+    assert submission.comment_count == 5
+    assert submission.view_count == 1026
     assert submission.rating == "General"
 
 
