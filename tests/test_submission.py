@@ -4,6 +4,7 @@ import datetime
 from bs4 import BeautifulSoup
 
 from furaffinity.submission import FASubmission
+from furaffinity.misc import FAComment
 from furaffinity.errors import *
 
 with open("tests/resources/submission.html") as dummy:
@@ -35,6 +36,14 @@ def test_stats():
     assert submission.comment_count == 5
     assert submission.view_count == 1026
     assert submission.rating == "General"
+
+
+def test_comments():
+    submission = FASubmission(soup, '00001')
+    expected = [FAComment(id='00000001', depth=0, author='foobar', text='This submission was very acceptable.'),
+                FAComment(id='00000002', depth=1, author='Fakeartist', text='Thank you!')]
+
+    assert submission.comments == expected
 
 
 def test_file():
