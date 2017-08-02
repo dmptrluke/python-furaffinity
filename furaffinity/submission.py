@@ -203,16 +203,14 @@ class FASubmission:
 
     @property
     def comments(self):
-        if self._comments:
-            return self._comments
+        if not self._comments:
+            for x in self.soup.find_all('div', class_="comment_container"):
+                _id = x.get('id')[4:]
+                _depth = abs(int(x.get('style')[6:-1]) - 100) // 3
+                _author = clean(x.find('h3', class_="comment_username").text)
+                _text = clean(x.find('div', class_="comment_text").get_text())
 
-        for x in self.soup.find_all('div', class_="comment_container"):
-            _id = x.get('id')[4:]
-            _depth = abs(int(x.get('style')[6:-1]) - 100) // 3
-            _author = clean(x.find('h3', class_="comment_username").text)
-            _text = clean(x.find('div', class_="comment_text").get_text())
-
-            self._comments.append(FAComment(_id, _depth, _author, _text))
+                self._comments.append(FAComment(_id, _depth, _author, _text))
 
         return self._comments
 
