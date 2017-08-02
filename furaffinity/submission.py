@@ -88,6 +88,15 @@ class FASubmission:
 
     # upload time functions
     @property
+    def time(self) -> datetime.datetime:
+        """
+        Returns a UTS datetime object with timezone information and everything.
+        """
+        # tip of the day - don't use dateparser
+        # dateutil.parse is much faster
+        return dateutil.parser.parse(self.time_raw)
+
+    @property
     def time_raw(self) -> str:
         """
         Returns the time the submission was posted, as a string, in lowercase unicode.
@@ -99,29 +108,6 @@ class FASubmission:
             _time = container.get("title")
 
         return clean(_time)
-
-    @property
-    def time_parsed(self) -> datetime.datetime:
-        """
-        Returns a UTS datetime object with timezone information and everything.
-        """
-        # tip of the day - don't use dateparser
-        # dateutil.parse is much faster
-        return dateutil.parser.parse(self.time_raw)
-
-    @property
-    def time_formatted(self) -> str:
-        """
-        Retrieves the last-modified string from the header, as a string in UNIX time format.
-        NOTE: You need to have parsed the image file before retrieving this.
-        FURTHER NOTE: This function has never done what it says it does. Ever.
-                      I just found it like this. It takes the normal date and
-                      outputs it in a format that looks like a timestamp.
-                      I should remove it.
-        """
-        _time = self.time_parsed
-        formatted = _time.strftime("%d/%m/%Y %H:%M")
-        return clean(formatted)
 
     # sub info
     @property
@@ -243,7 +229,3 @@ class FASubmission:
             raise MaturityError
         elif "You are not allowed to view this image" in str(self.soup):
             raise AccessError
-
-    @property
-    def html(self) -> str:
-        return self.soup.prettify()

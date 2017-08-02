@@ -10,6 +10,17 @@ from furaffinity.errors import *
 with open("tests/resources/submission.html") as dummy:
     soup = BeautifulSoup(dummy, "html.parser")
 
+TEST_HTML = """<div class="submission-description">
+ This is a test file I made for
+ <a class="iconusername" href="/user/foobar">
+  <img align="middle" alt="foobar" src="//example.com/avatar.gif" title="foobar">
+   foobar
+  </img>
+ </a>
+ !
+</div>
+"""
+
 
 def test_init():
     assert FASubmission(soup, '00001')
@@ -17,9 +28,12 @@ def test_init():
 
 def test_basics():
     submission = FASubmission(soup, '00001')
-    assert submission.title == "Test File"
+    assert submission.title == "Test / File"
+    assert submission.title_safe == "Test File"
     assert submission.uploader == "Fakeartist"
     assert submission.description == "This is a test file I made for foobar!"
+    assert submission.description_html == TEST_HTML
+
 
 
 def test_details():
@@ -65,8 +79,7 @@ def test_time():
     expected_time = datetime.datetime(2016, 10, 21, 3, 44, 00)
 
     assert submission.time_raw == "Oct 21st, 2016 03:44 AM"
-    assert submission.time_parsed == expected_time
-    assert submission.time_formatted == "21/10/2016 03:44"
+    assert submission.time == expected_time
 
 
 def test_keywords():
