@@ -35,7 +35,6 @@ def test_basics():
     assert submission.description_html == TEST_HTML
 
 
-
 def test_details():
     submission = FASubmission(soup, '00001')
     assert submission.category == "Artwork (Digital)"

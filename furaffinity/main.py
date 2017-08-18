@@ -30,8 +30,7 @@ class FurAffinity:
         self.session = session or requests.Session()
         self.logged_in = False
 
-        if useragent:
-            self.session.headers["User-Agent"] = useragent
+        self.session.headers["User-Agent"] = useragent or "python-furaffinity"
 
     ###
     # Authentication
