@@ -150,31 +150,31 @@ class FASubmission:
         """
         Returns the current amount of favorites the submission has, as an int.
         """
-        favs = clean(self.soup.find("h3", text="Favs").find_next("span").text)
-        return int(favs.strip())
+        block = self.soup.find("div", class_="submission-artist-stats").text.split('|')
+        return int(block[1])
 
     @property
     def comment_count(self) -> int:
         """
         Returns the current amount of comments the submission has, as an int.
         """
-        comments = clean(self.soup.find("h3", text="Comments").find_next("span").text)
-        return int(comments.strip())
+        block = self.soup.find("div", class_="submission-artist-stats").text.split('|')
+        return int(block[2])
 
     @property
     def view_count(self) -> int:
         """
         Returns the current amount of views the submission has, as an int.
         """
-        views = clean(self.soup.find("h3", text="Views").find_next("span").text)
-        return int(views.strip())
+        block = self.soup.find("div", class_="submission-artist-stats").text.split('|')
+        return int(block[0])
 
     @property
     def rating(self) -> str:
         """
         Returns the age rating of the submission in lowercase unicode.
         """
-        rating = self.soup.find("div", class_="rating-box").text
+        rating = self.soup.find("span", class_="rating-box").text
         return clean(rating)
 
     @property
@@ -207,7 +207,7 @@ class FASubmission:
             for x in self.soup.find_all('div', class_="comment_container"):
                 _id = x.get('id')[4:]
                 _depth = abs(int(x.get('style')[6:-1]) - 100) // 3
-                _author = clean(x.find('h3', class_="comment_username").text)
+                _author = clean(x.find('strong', class_="comment_username").text)
                 _text = clean(x.find('div', class_="comment_text").get_text())
 
                 self._comments.append(FAComment(_id, _depth, _author, _text))
