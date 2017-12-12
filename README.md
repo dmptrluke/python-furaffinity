@@ -1,14 +1,15 @@
-python-furaffinity [![Build Status](https://travis-ci.org/dmptrluke/python-furaffinity.svg?branch=master)](https://travis-ci.org/dmptrluke/python-furaffinity)
-==================
+# python-furaffinity [![Build Status](https://travis-ci.org/dmptrluke/python-furaffinity.svg?branch=master)](https://travis-ci.org/dmptrluke/python-furaffinity)
+
 A Python library for browsing, scraping and downloading content from Fur Affinity.
 This project is still under heavy development, so don't expect it to be finished quite yet.
 
 This requires **Python 3.5**. Your account must also be set to the **Beta** theme for this to work at all.
 
 ## How do I use this?
-Proper documentation will be coming (eventually), but here is  a short demonstration script 
+
+Proper documentation will be coming (eventually), but here is  a short demonstration script
 that should help you get the idea of what this library can do.
- 
+
  ```python
 """"
 A demo script that searches FA for submissions tagged "cat" and "dancing",
@@ -40,7 +41,7 @@ for result in results:
     # save it, skip the download if the file already exists
     # (we could use replace=True if we want it to replace existing files instead)
     submission.file.download(location, skip=True)
-    
+
     # be nice! don't thrash the servers
     time.sleep(1)
 ```
@@ -72,8 +73,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Parts of **python-furaffinity** are based off **[WTFPL](http://www.wtfpl.net/about/)** code from 
-[anonymph/furaffinity-scraper-network](https://bitbucket.org/anonymph/furaffinity-scraper-network). 
+Parts of **python-furaffinity** are based off **[WTFPL](http://www.wtfpl.net/about/)** code from
+[anonymph/furaffinity-scraper-network](https://bitbucket.org/anonymph/furaffinity-scraper-network).
 
 Try not to break the servers.
 

@@ -75,7 +75,8 @@ class FASubmission:
         """
         Returns the description of the submission as plain text
         """
-        description = self.soup.find('div', class_='submission-description').get_text()
+        description = self.soup.find('div', class_='submission-description-container').get_text().split(
+                                     'ago', 1)[1].strip()
         return clean(description)
 
     @property
@@ -83,7 +84,7 @@ class FASubmission:
         """
         Returns the description of the submission as HTML
         """
-        description_html = self.soup.find('div', class_='submission-description').prettify()
+        description_html = self.soup.find('div', class_='submission-description-container').prettify()
         return description_html
 
     # upload time functions
