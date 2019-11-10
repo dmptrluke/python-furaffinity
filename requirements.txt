@@ -1,5 +1,5 @@
 python-dateutil==2.8.1
-requests
+requests==2.22.0
 beautifulsoup4
 typing
 attrs
